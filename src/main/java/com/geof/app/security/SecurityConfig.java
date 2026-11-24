@@ -8,10 +8,9 @@ import org.springframework.beans.factory.annotation.Value; import org.springfram
   @Bean SecurityFilterChain chain(HttpSecurity http) throws Exception {
     http.csrf(c->c.disable()).cors(c->c.configurationSource(cors()))
       .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .authorizeHttpRequests(a->a
-        .requestMatchers("/","/login","/css/**","/js/**","/api/auth/**").permitAll()
-        .requestMatchers("/api/**").authenticated()
-        .anyRequest().authenticated())
+      .authorizeRequests()
+        .requestMatchers("/", "/index.html", "/login.html", "/dashboard.html", "/css/**", "/js/**", "/api/auth/**").permitAll()
+        .anyRequest().authenticated()
       .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
