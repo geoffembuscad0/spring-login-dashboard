@@ -4,7 +4,7 @@ services:
     image: mysql:8.0
     container_name: login-dashboard-mysql-test
     environment:
-      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_ROOT_PASSWORD: password123
       MYSQL_DATABASE: login_dashboard_test
     ports:
       - "3307:3306"

@@ -1,0 +1,12 @@
+<!DOCTYPE html><html><head><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><title>Dashboard</title><link rel='stylesheet' href='/css/app.css'></head><body>
+<button id='menuBtn' class='menu-btn'>☰</button><div id='overlay'></div>
+<aside id='sidebar'><div class='brand'>⚡ MyApp</div><nav><a class='active' href='#'>📊 Dashboard</a><a href='#'>👥 Users</a><a href='#'>⚙️ Settings</a></nav><button id='logoutBtn' class='logout'>Logout</button></aside>
+<main class='main'><header><h1>Dashboard</h1><span id='who'></span></header><section id='cards' class='grid'></section><section class='empty'><h2>Your dashboard is ready</h2><p>Add widgets by extending <code>DashboardController.summary()</code></p></section></main>
+<script>
+const token=localStorage.getItem('token'); if(!token) location.href='/login.html';
+const who=JSON.parse(localStorage.getItem('user')||'{}'); document.getElementById('who').textContent='Hi, '+(who.username||'');
+menuBtn.onclick=()=>{sidebar.classList.toggle('open');overlay.classList.toggle('show')}; overlay.onclick=()=>{sidebar.classList.remove('open');overlay.classList.remove('show')};
+logoutBtn.onclick=async()=>{await fetch('/api/auth/logout',{method:'POST',headers:{Authorization:'Bearer '+token}});localStorage.removeItem('token');localStorage.removeItem('user');location.href='/login.html';};
+fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}}).then(r=>{if(!r.ok) throw 0; return r.json()}).catch(()=>{localStorage.clear();location.href='/login.html'});
+fetch('/api/dashboard/summary',{headers:{Authorization:'Bearer '+token}}).then(r=>r.json()).then(d=>{cards.innerHTML=d.widgets.map(w=>`<div class='card'><small>${w.title}</small><b>${w.value}</b><span>${w.note}</span></div>`).join('')});
+</script></body></html>
