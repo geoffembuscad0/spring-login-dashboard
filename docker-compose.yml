@@ -1,18 +1,35 @@
-# Local TEST MySQL - no need to install MySQL, no risk to your real DB
 services:
-  mysql-test:
+  mysql:
     image: mysql:8.0
     container_name: login-dashboard-mysql-test
+    restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: password123
+      MYSQL_ROOT_PASSWORD: yourpassword
       MYSQL_DATABASE: login_dashboard_test
     ports:
       - "3307:3306"
     volumes:
-      - mysql_test_data:/var/lib/mysql
+      - mysql-test-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyourpassword"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  app:
+    build: .
+    container_name: login-dashboard-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/login_dashboard_test?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: yourpassword
+
 volumes:
-  mysql_test_data:
-# Usage:
-#   docker compose up -d
-#   # then in application-test.properties change port to 3307, or set env:
-#   SPRING_DATASOURCE_URL=jdbc:mysql://localhost:3307/login_dashboard_test?...
+  mysql-test-data:
